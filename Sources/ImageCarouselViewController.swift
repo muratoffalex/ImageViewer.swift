@@ -38,11 +38,14 @@ public class ImageCarouselViewController:UIPageViewController {
     
     private(set) lazy var navItem = UINavigationItem()
     
+    var pageChanged: ((Int) -> Void)? = nil
+    
     public static func create(
         sourceView:UIImageView,
         imageDataSource: ImageDataSource?,
         options:[ImageViewerOption] = [],
-        initialIndex:Int = 0) -> ImageCarouselViewController {
+        initialIndex:Int = 0,
+        pageChanged: ((Int) -> Void)? = nil) -> ImageCarouselViewController {
         
         let pageOptions = [UIPageViewController.OptionsKey.interPageSpacing: 20]
         
@@ -58,6 +61,7 @@ public class ImageCarouselViewController:UIPageViewController {
         imageCarousel.imageDatasource = imageDataSource
         imageCarousel.options = options
         imageCarousel.initialIndex = initialIndex
+        imageCarousel.pageChanged = pageChanged
        
         return imageCarousel
     }
@@ -118,6 +122,7 @@ public class ImageCarouselViewController:UIPageViewController {
         
         view.backgroundColor = .clear
         dataSource = self
+        delegate = self
 
         let initialVC = ImageViewerController(sourceView: sourceView)
         initialVC.index = initialIndex
@@ -170,6 +175,7 @@ public class ImageCarouselViewController:UIPageViewController {
 }
 
 extension ImageCarouselViewController:UIPageViewControllerDataSource {
+    
     public func pageViewController(
         _ pageViewController: UIPageViewController,
         viewControllerBefore viewController: UIViewController) -> UIViewController? {
@@ -177,9 +183,10 @@ extension ImageCarouselViewController:UIPageViewControllerDataSource {
         guard let vc = viewController as? ImageViewerController else { return nil }
         guard let imageDatasource = imageDatasource else { return nil }
         guard vc.index > 0 else { return nil }
- 
+        
         let newIndex = vc.index - 1
         let sourceView = newIndex == initialIndex ? self.sourceView : nil
+        
         return ImageViewerController.create(
             index: newIndex,
             imageItem:  imageDatasource.imageItem(at: newIndex),
@@ -196,12 +203,22 @@ extension ImageCarouselViewController:UIPageViewControllerDataSource {
         guard vc.index <= (imageDatasource.numberOfImages() - 2) else { return nil }
         
         let newIndex = vc.index + 1
+        
         let sourceView = newIndex == initialIndex ? self.sourceView : nil
         return ImageViewerController.create(
             index: newIndex,
             imageItem:  imageDatasource.imageItem(at: newIndex),
             sourceView: sourceView,
             delegate: self)
+    }
+}
+
+extension ImageCarouselViewController: UIPageViewControllerDelegate {
+
+    public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        guard completed, let vc = self.viewControllers!.first! as? ImageViewerController, pageChanged != nil else { return }
+        
+        pageChanged!(vc.index)
     }
 }
 

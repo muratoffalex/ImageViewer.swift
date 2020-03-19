@@ -8,6 +8,7 @@ extension UIImageView {
         var imageDatasource:ImageDataSource?
         var initialIndex:Int = 0
         var options:[ImageViewerOption] = []
+        var pageChanged: ((Int) -> Void)? = nil
     }
     
     private var vc:UIViewController? {
@@ -44,7 +45,8 @@ extension UIImageView {
         images:[UIImage],
         initialIndex:Int = 0,
         options:[ImageViewerOption] = [],
-        from:UIViewController? = nil) {
+        from:UIViewController? = nil,
+        pageChanged: ((Int) -> Void)? = nil) {
         
         let datasource = SimpleImageDatasource(
             imageItems: images.compactMap {
@@ -62,7 +64,8 @@ extension UIImageView {
         initialIndex:Int = 0,
         options:[ImageViewerOption] = [],
         placeholder: UIImage? = nil,
-        from:UIViewController? = nil) {
+        from:UIViewController? = nil,
+        pageChanged: ((Int) -> Void)? = nil) {
         
         let datasource = SimpleImageDatasource(
             imageItems: urls.compactMap {
@@ -72,14 +75,16 @@ extension UIImageView {
             datasource: datasource,
             initialIndex: initialIndex,
             options: options,
-            from: from)
+            from: from,
+            pageChanged: pageChanged)
     }
     
     public func setupImageViewer(
         datasource:ImageDataSource,
         initialIndex:Int = 0,
         options:[ImageViewerOption] = [],
-        from:UIViewController? = nil) {
+        from:UIViewController? = nil,
+        pageChanged: ((Int) -> Void)? = nil) {
         
         setup(
             datasource: datasource,
@@ -92,7 +97,8 @@ extension UIImageView {
         datasource:ImageDataSource?,
         initialIndex:Int = 0,
         options:[ImageViewerOption] = [],
-        from: UIViewController? = nil) {
+        from: UIViewController? = nil,
+        pageChanged: ((Int) -> Void)? = nil) {
         
         var _tapRecognizer:TapWithDataRecognizer?
         gestureRecognizers?.forEach {
@@ -117,6 +123,7 @@ extension UIImageView {
         _tapRecognizer!.initialIndex = initialIndex
         _tapRecognizer!.options = options
         _tapRecognizer!.from = from
+        _tapRecognizer!.pageChanged = pageChanged
         addGestureRecognizer(_tapRecognizer!)
     }
     
@@ -128,7 +135,8 @@ extension UIImageView {
             sourceView: sourceView,
             imageDataSource: sender.imageDatasource,
             options: sender.options,
-            initialIndex: sender.initialIndex)
+            initialIndex: sender.initialIndex,
+            pageChanged: sender.pageChanged)
         let presentFromVC = sender.from ?? vc
         presentFromVC?.present(imageCarousel, animated: false, completion: nil)
     }
