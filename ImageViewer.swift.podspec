@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name = 'ImageViewer.swift'
-  s.version =  ENV['LIB_VERSION'] || '3.0'
+  s.version = '3.0.13'
   s.summary = 'An easy to use Image Viewer that is inspired by Facebook'
   s.homepage = 'https://github.com/michaelhenry/ImageViewer.swift'
   s.author = 'Michael Henry Pantaleon', 'me@iamkel.net'
   s.source = {
-    :git => 'https://github.com/michaelhenry/ImageViewer.swift.git',
+    :git => 'https://github.com/muratoffalex/ImageViewer.swift.git',
     :tag => s.version.to_s
   }
   s.source_files = 'Sources/*'
